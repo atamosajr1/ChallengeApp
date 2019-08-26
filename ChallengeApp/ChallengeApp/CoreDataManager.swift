@@ -10,10 +10,41 @@ import Foundation
 import CoreData
 import UIKit
 
+extension NSPersistentStoreCoordinator {
+  public enum CoordinatorError: Error {
+    case modelFileNotFound
+    case modelCreationError
+    case storePathNotFound
+  }
+  static func coordinator(name: String) throws -> NSPersistentStoreCoordinator? {
+    guard let modelURL = Bundle.main.url(forResource: name, withExtension: "momd") else {
+      throw CoordinatorError.modelFileNotFound
+    }
+    guard let model = NSManagedObjectModel(contentsOf: modelURL) else {
+      throw CoordinatorError.modelCreationError
+    }
+    let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+    guard let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last else {
+      throw CoordinatorError.storePathNotFound
+    }
+    do {
+      let url = documents.appendingPathComponent("\(name).sqlite")
+      let options = [ NSMigratePersistentStoresAutomaticallyOption : true,
+                      NSInferMappingModelAutomaticallyOption : true ]
+      try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: options)
+    } catch {
+      throw error
+    }
+    return coordinator
+  }
+}
+
+
 class CoreDataManager: NSObject {
   static let sharedManager = CoreDataManager()
   private override init() {}
   
+  @available(iOS 10.0, *)
   lazy var persistentContainer: NSPersistentContainer = {
     let container = NSPersistentContainer(name: "ChallengeApp")
     //print(container.persistentStoreDescriptions.first?.url)
@@ -21,11 +52,40 @@ class CoreDataManager: NSObject {
       if let error = error as NSError? {
       }
     })
+    let description = NSPersistentStoreDescription()
+    description.shouldMigrateStoreAutomatically = true
+    description.shouldInferMappingModelAutomatically = true
+    container.persistentStoreDescriptions =  [description]
     return container
   }()
   
+  private lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
+    do {
+      return try NSPersistentStoreCoordinator.coordinator(name: "ChallengeApp")
+    } catch {
+      print("CoreData: Unresolved error \(error)")
+    }
+    return nil
+  }()
+  
+  private lazy var managedObjectContext: NSManagedObjectContext = {
+    let coordinator = self.persistentStoreCoordinator
+    var managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+    managedObjectContext.persistentStoreCoordinator = coordinator
+    return managedObjectContext
+  }()
+  
+  var context: NSManagedObjectContext {
+    get {
+      if #available(iOS 10.0, *) {
+        return persistentContainer.viewContext
+      } else {
+        return managedObjectContext
+      }
+    }
+  }
+  
   func saveContext () {
-    let context = persistentContainer.viewContext
     if context.hasChanges {
       do {
         try context.save()
@@ -37,8 +97,8 @@ class CoreDataManager: NSObject {
   }
 
   func createAuthorEntityFrom(author: Author) -> NSManagedObject? {
-    let context = persistentContainer.viewContext
     if let authorEntity = NSEntityDescription.insertNewObject(forEntityName: "Author", into: context) as? Author {
+      print("Create : \(author.first_name)")
       authorEntity.address = author.address
       authorEntity.author_id = author.author_id
       authorEntity.avatar_link = author.avatar_link
@@ -60,7 +120,7 @@ class CoreDataManager: NSObject {
   func saveAuthorsInCoreDataWith(array: [Author]) {
     _ = array.map{self.createAuthorEntityFrom(author: $0)}
     do {
-      try CoreDataManager.sharedManager.persistentContainer.viewContext.save()
+      try context.save()
     } catch let error {
       print(error)
     }
@@ -68,11 +128,12 @@ class CoreDataManager: NSObject {
   
   func fetchAllAuthors()  -> [Author] {
     do {
+      let filter = NSPredicate(format: "author_id != nil")
       let sortDescriptor = NSSortDescriptor(key: "author_id", ascending: true)
       let sortDescriptors = [sortDescriptor]
-      let context = persistentContainer.viewContext
       let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: Author.self))
       fetchRequest.sortDescriptors = sortDescriptors
+      fetchRequest.predicate = filter
       var authors: [Author] = [Author]()
       do {
         let objects  = try context.fetch(fetchRequest) as? [Author]
@@ -86,8 +147,6 @@ class CoreDataManager: NSObject {
   
   func clearAuthorData() {
     do {
-      
-      let context = persistentContainer.viewContext
       let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: Author.self))
       do {
         let objects  = try context.fetch(fetchRequest) as? [NSManagedObject]
@@ -100,7 +159,6 @@ class CoreDataManager: NSObject {
   }
   
   func createPostEntityFrom(post: Post) -> NSManagedObject? {
-    let context = persistentContainer.viewContext
     if let postEntity = NSEntityDescription.insertNewObject(forEntityName: "Post", into: context) as? Post {
       postEntity.body = post.body
       postEntity.edit_link = post.edit_link
@@ -117,7 +175,7 @@ class CoreDataManager: NSObject {
   func savePostsInCoreDataWith(array: [Post]) {
     _ = array.map{self.createPostEntityFrom(post: $0)}
     do {
-      try CoreDataManager.sharedManager.persistentContainer.viewContext.save()
+      try context.save()
     } catch let error {
       print(error)
     }
@@ -127,8 +185,6 @@ class CoreDataManager: NSObject {
     var posts: [Post] = [Post]()
     let filter = NSPredicate(format: "user_id contains %@", userid)
     do {
-      
-      let context = persistentContainer.viewContext
       let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: Post.self))
       fetchRequest.predicate = filter
       do {
@@ -143,8 +199,6 @@ class CoreDataManager: NSObject {
   
   func clearPostData() {
     do {
-      
-      let context = persistentContainer.viewContext
       let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: Post.self))
       do {
         let objects  = try context.fetch(fetchRequest) as? [NSManagedObject]
@@ -157,13 +211,12 @@ class CoreDataManager: NSObject {
   }
   
   func saveImage(image: UIImage, location: String) {
-    let context = persistentContainer.viewContext
     if let imageEntity = NSEntityDescription.insertNewObject(forEntityName: "Image", into: context) as? Image {
       let imageData = image.jpegData(compressionQuality: 1.0)
       imageEntity.location = location
       imageEntity.data = imageData! as NSData
       do {
-        try CoreDataManager.sharedManager.persistentContainer.viewContext.save()
+        try context.save()
       } catch let error {
         print(error)
       }
@@ -173,8 +226,6 @@ class CoreDataManager: NSObject {
   func getImageWithLocation(location: String) -> UIImage {
     let filter = NSPredicate(format: "location = %@", location)
     do {
-      
-      let context = persistentContainer.viewContext
       let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: Image.self))
       fetchRequest.predicate = filter
       do {

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 protocol AuthorDetailViewModelInputs {
   func viewDidLoad()
@@ -58,7 +59,11 @@ final class AuthorDetailViewModel: AuthorDetailViewModelInputs, AuthorDetailView
   func websiteTapped(website: String) {
     if let url = URL(string: website),
       UIApplication.shared.canOpenURL(url) {
-      UIApplication.shared.open(url, options: [:])
+      if #available(iOS 10, *) {
+        UIApplication.shared.open(url, options: [:])
+      } else {
+        UIApplication.shared.openURL(url)
+      }
     }
   }
   
@@ -83,7 +88,12 @@ final class AuthorDetailViewModel: AuthorDetailViewModelInputs, AuthorDetailView
           return
         }
         do {
-          let mainContext = self!.coreDataManager.persistentContainer.newBackgroundContext()
+          let mainContext: NSManagedObjectContext
+          if #available(iOS 10, *) {
+            mainContext = self!.coreDataManager.persistentContainer.newBackgroundContext()
+          } else {
+            mainContext = self!.coreDataManager.context
+          }
           let decoder = JSONDecoder()
           if let context = CodingUserInfoKey.context {
             decoder.userInfo[context] = mainContext

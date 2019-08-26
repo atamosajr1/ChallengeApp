@@ -29,8 +29,10 @@ class AuthorCell: UITableViewCell {
     }
 
   func setAuthorData(author: Author) {
-    authorNameLabel.text = "\(author.first_name!) \(author.last_name!)"
-    authorImageView.loadImageUsingCacheWithURLString(author.avatar_link!, placeHolder: UIImage(named: "dummy"))
+    if let firstname = author.first_name, let lastname = author.last_name, let avatar = author.avatar_link {
+      authorNameLabel.text = "\(firstname) \(lastname)"
+      authorImageView.loadImageUsingCacheWithURLString(avatar, placeHolder: UIImage(named: "dummy"))
+    }
   }
 }
 

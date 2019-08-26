@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class AuthorDetailViewController: UIViewController {
 
@@ -14,7 +15,7 @@ class AuthorDetailViewController: UIViewController {
   var currentIndex = 0
   var selectedAuthor: Author? = nil
   var authors: [Author] = [Author]()
-  private var viewModel: AuthorDetailViewModel = AuthorDetailViewModel(author: Author())
+  private var viewModel: AuthorDetailViewModel = AuthorDetailViewModel(author: Author.init(entity: NSEntityDescription.entity(forEntityName: "Author", in: CoreDataManager.sharedManager.context)!, insertInto: CoreDataManager.sharedManager.context))
   
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +26,6 @@ class AuthorDetailViewController: UIViewController {
       bind()
       viewModel.inputs.viewDidLoad()
     }
-    
   private func bind() {
     viewModel.outputs.reloadData = { [weak self] in
       DispatchQueue.main.async {

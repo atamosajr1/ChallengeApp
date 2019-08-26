@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 protocol AuthorListViewModelInputs {
   func viewDidLoad()
@@ -78,7 +79,12 @@ final class AuthorListViewModel: AuthorListViewModelInputs, AuthorListViewModelO
         }
         print("Authors : \(data)")
         do {
-          let mainContext = self!.coreDataManager.persistentContainer.newBackgroundContext()
+          let mainContext: NSManagedObjectContext
+          if #available(iOS 10, *) {
+            mainContext = self!.coreDataManager.persistentContainer.newBackgroundContext()
+          } else {
+            mainContext = self!.coreDataManager.context
+          }
           let decoder = JSONDecoder()
           if let context = CodingUserInfoKey.context {
             decoder.userInfo[context] = mainContext

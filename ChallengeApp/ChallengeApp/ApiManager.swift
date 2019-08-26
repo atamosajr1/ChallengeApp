@@ -80,7 +80,7 @@ class ApiManager {
     private func getHttpBody() -> Data? {
         guard let contentType = requestHttpHeaders.value(forKey: "Content-Type") else { return nil }
         if contentType.contains("application/json") {
-            return try? JSONSerialization.data(withJSONObject: httpBodyParameters.allValues(), options: [.prettyPrinted, .sortedKeys])
+            return try? JSONSerialization.data(withJSONObject: httpBodyParameters.allValues(), options: [])
         } else if contentType.contains("application/x-www-form-urlencoded") {
             let bodyString = httpBodyParameters.allValues().map { "\($0)=\(String(describing: $1.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)))" }.joined(separator: "&")
             return bodyString.data(using: .utf8)

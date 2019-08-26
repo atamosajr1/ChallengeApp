@@ -36,6 +36,7 @@ class AuthorListViewController: UIViewController {
   override func viewDidLoad() {
     self.title = "Authors"
     super.viewDidLoad()
+    self.automaticallyAdjustsScrollViewInsets = false
     activityIndicator.startAnimating()
     bind()
     viewModel.inputs.viewDidLoad()

@@ -19,6 +19,7 @@
 		EB543A62230EE45C004DD685 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB543A61230EE45C004DD685 /* Reachability.swift */; };
 		EB543A6D230F6B70004DD685 /* Image+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB543A6B230F6B6F004DD685 /* Image+CoreDataClass.swift */; };
 		EB543A6E230F6B70004DD685 /* Image+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB543A6C230F6B70004DD685 /* Image+CoreDataProperties.swift */; };
+		EB543A7023142019004DD685 /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB543A6F23142018004DD685 /* Styles.swift */; };
 		EBB63E0023011AD000137CD9 /* AuthorDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB63DFF23011AD000137CD9 /* AuthorDetailViewController.swift */; };
 		EBB63E0223013D0500137CD9 /* AuthorDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB63E0123013D0500137CD9 /* AuthorDetailViewModel.swift */; };
 		EBB9D1C022F42C090014CEC6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB9D1BF22F42C090014CEC6 /* AppDelegate.swift */; };
@@ -44,6 +45,7 @@
 		EB543A61230EE45C004DD685 /* Reachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		EB543A6B230F6B6F004DD685 /* Image+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+CoreDataClass.swift"; sourceTree = "<group>"; };
 		EB543A6C230F6B70004DD685 /* Image+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Image+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		EB543A6F23142018004DD685 /* Styles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styles.swift; sourceTree = "<group>"; };
 		EBB63DFF23011AD000137CD9 /* AuthorDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorDetailViewController.swift; sourceTree = "<group>"; };
 		EBB63E0123013D0500137CD9 /* AuthorDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorDetailViewModel.swift; sourceTree = "<group>"; };
 		EBB9D1BC22F42C090014CEC6 /* ChallengeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChallengeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,6 +108,7 @@
 				EB543A5F230E402B004DD685 /* PostCell.swift */,
 				EB543A5D230E1C34004DD685 /* AuthorDetailView.swift */,
 				EB543A61230EE45C004DD685 /* Reachability.swift */,
+				EB543A6F23142018004DD685 /* Styles.swift */,
 				EBB9D1C322F42C090014CEC6 /* Main.storyboard */,
 				EBB9D1C922F42C0C0014CEC6 /* Assets.xcassets */,
 				EBB9D1CB22F42C0C0014CEC6 /* LaunchScreen.storyboard */,
@@ -197,6 +200,7 @@
 				EBB9D1C022F42C090014CEC6 /* AppDelegate.swift in Sources */,
 				EB543A6D230F6B70004DD685 /* Image+CoreDataClass.swift in Sources */,
 				EBB9D1DD22F435EC0014CEC6 /* AuthorListViewController.swift in Sources */,
+				EB543A7023142019004DD685 /* Styles.swift in Sources */,
 				EBB9D1DF22F436050014CEC6 /* CoreDataManager.swift in Sources */,
 				EB543A5E230E1C34004DD685 /* AuthorDetailView.swift in Sources */,
 				EB543A57230D9887004DD685 /* Author+CoreDataClass.swift in Sources */,
